@@ -4,26 +4,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="{% static 'index.css' %}">
     <title>Document</title>
 </head>
 <body>
     <nav class="nav-bar">
-        <h1>QuizHub</h1>
+        <h1 class="logo">QuizHub</h1>
     </nav>
-    <h1>print hello</h1>
-    <form enctype="multipart/form-data" method="post">
-        {% csrf_token %}
-        <input type="file" name="document">
-        <button type="submit">submit</button>
-    </form>
+    <div class="title-container">
+        <h1 class="title">AI QUIZ GENERATOR</h1>
+        <p class="title-description">QuizHub utilizes artificial intelligence to generate questions suitable for quizzes, reviews, and exams. This tool assists teachers and students by swiftly transforming PDFs into quizzes. Simply upload your file or type your text, and let the website generate your quiz in no time.</p>
+    </div>
 
-    <h1>Extracted Text</h1>
-    {% if text %}
-        <p>{{ text }}</p>
-    {% else %}
-        <p>No text has been extracted yet.</p>
-    {% endif %}
+    <div class="form-container">
+        <form enctype="multipart/form-data" method="post">
+            {% csrf_token %}
+            <input type="file" name="document">
+            <button type="submit">submit</button>
+        </form>
+    </div>
+
+    <div class="extracted-text">
+        <h1>Extracted Text for now</h1>
+        {% if text %}
+            <p>{{ text }}</p>
+        {% else %}
+            <p>No text has been extracted yet.</p>
+        {% endif %}
+    </div>
+
+    <div class="how-to-container">
+        <div class="steps-container">
+            <h3>step 1</h3>
+            <p>upload</p>
+        </div>
+        <div class="steps-container">
+            <h3>step 1</h3>
+            <p>upload</p>
+        </div>
+        <div class="steps-container">
+            <h3>step 1</h3>
+            <p>upload</p>
+        </div>
+    </div>
+
+    <footer class="footer-container">
+        <p>QuizHub 2021</p>
+    </footer>
 </body>
 </html>

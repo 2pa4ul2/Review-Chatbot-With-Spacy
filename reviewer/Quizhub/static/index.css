@@ -1,8 +1,97 @@
+*{
+    font-family: "Montserrat", sans-serif;
+}
+
 body{
     margin: 0;
     padding: 0;
+    background-color: #161618;
 }
 
-h1{
-    color: tomato;
+nav{
+    width: 100%;
+    height: 80px;
+    background-color: #2D2D2F;
+    display: flex;
+    align-items: center;
 }
+
+.nav-bar .logo{
+    margin: 0;
+    color: white;
+    margin: 0 0 0 30px;
+    font-size: 32px;
+}
+
+.title-container{
+    width: 60%;
+    height: 150px;
+    margin: 100px auto 0;
+    color: white;
+}
+
+.title-container .title{
+    font-size: 48px;
+    font-weight: 600;
+    text-align: center;
+}
+.title-container .title-description{
+    font-size: 16px;
+    font-weight: 400;
+    text-align: center;
+    text-justify: inter-word;
+}
+
+.form-container{
+    width: 60%;
+    height: 300px;
+    margin: 50px auto 0;
+    background-color: #2D2D2F;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.extracted-text{
+    width: 60%;
+    height: 300px;
+    margin: 50px auto 0;
+    background-color: #2D2D2F;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: white;
+}
+
+.footer-container{
+    width: 100%;
+    height: 200px;
+    margin: 100px 0 0 0;
+    background-color: #2D2D2F;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+}
+
+.how-to-container{
+    width: 60%;
+    height: 300px;
+    margin: 50px auto 0;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+        .steps-container{
+            width: 200px;
+            height: 200px;
+            border: 1px solid rgba(255, 255, 255, 0.199);
+            border-radius: 25px;
+            margin: 0 30px;
+            text-align: center;
+        }
