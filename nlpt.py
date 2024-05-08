@@ -18,6 +18,10 @@ class Extract:
             text = self._extract_text_from_pdf(pdf)
         for page in pdf.pages:
             text += page.extract_text()
+            for line in text:
+                doc = self.nlp(line)
+                for ent in doc.ents:
+                    print(ent.text, ent.label_)
         return text
 
 if __name__ == "__main__":
