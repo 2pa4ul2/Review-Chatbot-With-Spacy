@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <nav class="nav-bar">
+        <h1>QuizHub</h1>
+    </nav>
+    <h1>print hello</h1>
+    <form enctype="multipart/form-data" method="post">
+        {% csrf_token %}
+        <input type="file" name="document">
+        <button type="submit">submit</button>
+    </form>
+
+    <h1>Extracted Text</h1>
+    {% if text %}
+        <p>{{ text }}</p>
+    {% else %}
+        <p>No text has been extracted yet.</p>
+    {% endif %}
+</body>
+</html>
