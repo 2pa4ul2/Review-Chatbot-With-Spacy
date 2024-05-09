@@ -11,6 +11,7 @@ class Extract:
         self.nlp = spacy.load("en_core_web_sm")
         self.pdf_path = pdf_path
 
+
     def extract_text(self):
         text = ""
         with open(self.pdf_path, "rb") as file:
