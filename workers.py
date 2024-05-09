@@ -31,7 +31,6 @@ def txt2questions(doc: str, n=5, o=4)->dict:
 
 
 # Example test case
-
 file_path = "pdfs\modelling.pdf"
 file_extension = 'pdf'
 
