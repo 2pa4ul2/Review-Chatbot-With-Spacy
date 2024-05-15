@@ -22,16 +22,16 @@ def txt2questions(doc: str, n=5, o=4)->dict:
     q = qGenerator.generate_questions_dict(doc)
     for i in range(len(q)):
         temp = []
-        if "Choices" in q[i+1]:
-            for j in range(len(q[i+1]["Choices"])):
-                temp.append(q[i+1]["Choices"][j])
-        q[i+1]["Choices"] = temp
-    print(q)
+        if "choices" in q[i+1]:
+            for j in range(len(q[i+1]["choices"])):
+                temp.append(q[i+1]["choices"][j])
+        q[i+1]["choices"] = temp
+    #print(q)
     return q
 
 
 # Example test case
-file_path = "pdfs\modelling.pdf"
+file_path = "pdfs\MAPTEST.pdf"
 file_extension = 'pdf'
 
 # Call the pdf2text function
@@ -42,6 +42,10 @@ questions = txt2questions(text_content)
 
 
 # Print the generated questions
-for question, choices in questions.items():
-    print(question)
-    print(choices)
+for index, ques in questions.items():
+    print("QUESTION NUMBER:", index)
+    for i in ques:
+        print(f"{i}: {i.value()}")
+    # print("QUESTION:", ques['question'])
+    # print("ANSWER:", ques['answer'])
+    # print("CHOICES:", ques['choices'])

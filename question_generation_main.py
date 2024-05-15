@@ -19,14 +19,12 @@ class QuestionGenerator:
         for sentence in sentences:
             good_sentence = re.sub(r'([^\s\w]|_)+', '', sentence)
             good_sentence = re.sub(' +', ' ', good_sentence)
-            cleaned_text += good_sentence
+            cleaned_text += good_sentence.strip()  # Remove trailing space
 
-            if cleaned_text[-1] == ' ':
-                cleaned_text += '.'
-            else:
+            if cleaned_text and cleaned_text[-1] != '.':
                 cleaned_text += '. '
-            cleaned_text += ' '
 
+        print("cleaned_text:", cleaned_text)
         return cleaned_text
     
     def generate_questions_dict(self, file):
@@ -39,9 +37,9 @@ class QuestionGenerator:
         for i in range(1, self.num_questions + 1):
             if i not in self.questions_dict:
                 continue
-            if 'Answer' in self.questions_dict[i]:
-                self.questions_dict[i]['Choices'] = self.incorrect_answer_generator.get_all_options_dict(
-                    self.questions_dict[i]['Answer'], 
+            if 'answer' in self.questions_dict[i]:
+                self.questions_dict[i]['choices'] = self.incorrect_answer_generator.get_all_options_dict(
+                    self.questions_dict[i]['answer'], 
                     self.num_options
                 )
           

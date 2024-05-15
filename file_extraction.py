@@ -22,6 +22,7 @@ class FileExtractor:
 
         '''
         self.possible_keywords = self.get_possible_entities(file)
+        print("possible_keywords:", self.possible_keywords)
         self.set_tdidf_scores(file)
         self.rank_keywords()
         self.form_questions()
@@ -51,11 +52,13 @@ class FileExtractor:
         Need: file
         Return: list of possible entities
         '''
-        entities = self.ner_tagger(file)
+        entities = self.ner_tagger(file) #spacy 
         entity_list = []
-
+        
         for ent in entities.ents:
             entity_list.append(ent.text)
+
+        print("Entities:", list(set(entity_list)))
         return list(set(entity_list))
     
     def set_tdidf_scores(self, file):
@@ -74,8 +77,11 @@ class FileExtractor:
 
         self.vectorizer = TfidfVectorizer()
         tf_idf_vector = self.vectorizer.fit_transform(self.cleaned_sentences)
+        print("tf_idf_vector", tf_idf_vector)
         feature_names = self.vectorizer.get_feature_names_out()
+        print("feature_names",feature_names)
         tf_idf_matrix = tf_idf_vector.todense().tolist()
+        print("tf_idf_matrix", tf_idf_matrix)
 
         num_sentences = len(self.uncleaned_sentences)
         num_features = len(feature_names)
@@ -112,10 +118,14 @@ class FileExtractor:
         Finds and returns the sentences containing the keyword
         '''
         words = word_tokenize(keyword)
+        print("KEYWORD:", keyword, "WORDS:", words)
+
         for word in words:
+            print([x for x in self.sentence_for_max_word_score])
             if word not in self.sentence_for_max_word_score:
                 continue
             sentence = self.sentence_for_max_word_score[word]
+
 
             all_present = True
             for w in words:
@@ -131,7 +141,7 @@ class FileExtractor:
         This functions ranks keywords according to their score
         '''
         self.possible_triples = []
-
+        
         for possible_keyword in self.possible_keywords:
             self.possible_triples.append([
                 self.get_keyword_score(possible_keyword),

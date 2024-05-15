@@ -1,0 +1,31 @@
+WORKERS:
+    1. pdf2txt -> txt2questions
+    2. calls generate_questions_dict from QuestionGenerator         == STRING FROM PDF FILE
+
+    QUES GEN:
+        1. clean text (removes special chars and double spaces)     
+        2. calls get_questions_dict from FileExtractor              == STRING FROM CLEAN TEXT 
+
+        FILE EXT:
+            1. get_possible_entities (spacy labeled entities)       == LIST OF STRINGS (stored in possible_keywords)
+            2. set_tdidf_scores
+                sent_tokenize (list of sentences stored in self.uncleaned_sentences)
+                self.get_cleaned_sentences (remove stopwords each sentence stored in self.cleaned_sentences)
+
+                vectorizer (TfidfVectorizer) -> tf_idf_vector -> tf_idf_matrix
+                features_name = words in the fd-idf (get_feature_names_out())
+
+                loop to get the word with max tf-idf score and get the corresponding sentence of that word
+                   - compute average TF-IDF score for the word and store it in self.word_score
+
+            3. rank_keywords
+                loop to get the info for possible_triples
+                   - possible_triples = list, (a) consist of get_keyword_score, (b) the keywords itself, 
+                                              (c) then the sentence (iff all words are in sentence_for_max_word_score)
+
+                sort the words based on scores 
+
+            4. form_questions
+                from possible_triples assign the question and answer to the questions_dictionary 
+                   - replacing the answer with blank in the question sentence
+

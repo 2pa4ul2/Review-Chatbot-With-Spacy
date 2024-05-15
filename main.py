@@ -41,7 +41,7 @@ def handle_response(text: str) -> str:
         text_to_summarize = text_input
 
         summary = text_summarization(text_to_summarize, 0.3)
-        return f'Summarization of the text: {summary}'
+        return f'Summarization of the text:\n{summary}'
     
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE): 
@@ -57,6 +57,7 @@ def text_summarization(text, percentage):
     doc = nlp(text) 
 
     tokens=[token.text for token in doc]
+    # print("unused tokens:", tokens)
     frequency = dict()
 
     #cleaning text
@@ -68,6 +69,7 @@ def text_summarization(text, percentage):
                 else:
                     frequency[word.text] += 1
 
+    #print("Freq:", frequency)
     #setting max frequency of word
     max_frequency = max(frequency.values())
 
@@ -77,6 +79,8 @@ def text_summarization(text, percentage):
 
     #sentence is weighed based on how often it contains the token
     sent_tokens = [sent for sent in doc.sents]
+    #print("SentTokens:", sent_tokens)
+
     sentscore = dict()
     for sent in sent_tokens:
         for word in sent:
