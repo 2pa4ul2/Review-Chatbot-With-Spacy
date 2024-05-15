@@ -3,7 +3,7 @@
 import spacy
 from typing import Final
 from telegram import Update
-from telegram.ext import Application, CommandHandler, MessageHandler, Filters, ContextTypes
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 from spacy.lang.en.stop_words import STOP_WORDS
 from string import punctuation
 from heapq import nlargest
@@ -31,8 +31,8 @@ async def custom_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 #Responses
 
-def handle_response(update:Update,context: ContextTypes.DEFAULT_TYPE, text: str) -> str:
-    text_input: str = update.message.text.lower()
+def handle_response(text: str) -> str:
+    text_input: str = text.lower()
 
     if 'hello' in text_input:
         return 'Hello! How can I help you today?'
@@ -41,7 +41,14 @@ def handle_response(update:Update,context: ContextTypes.DEFAULT_TYPE, text: str)
         text_to_summarize = text_input
 
         summary = text_summarization(text_to_summarize, 0.3)
-        return f'summarization of the text: {summary}'
+        return f'Summarization of the text: {summary}'
+    
+
+async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE): 
+    text: str = update.message.text
+    response: str = handle_response(text)
+    print("Bot:", response)
+    await update.message.reply_text(response)
 
 #summarization of the text
 def text_summarization(text, percentage):
@@ -110,8 +117,8 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler('start', start_command))
     app.add_handler(CommandHandler('help', help_command))
     app.add_handler(CommandHandler('custom', custom_command))
-    
-    app.add_handler(MessageHandler(Filters.TEXT ,handle_response))
+
+    app.add_handler(MessageHandler(filters.TEXT, handle_message))
 
     #error
     app.add_error_handler(error)

@@ -8,6 +8,8 @@ print(num_pages)
 
 
 pdf_extracted_text = ""
+
+
 nlp = spacy.load('en_core_web_sm')  #load spacy model
 #extract text   
 def extract_text_from_pdf(pdf_file):
@@ -24,7 +26,7 @@ def extract_text_from_pdf(pdf_file):
 
 pdf_file = 'pdfs/modelling.pdf'
 extracted_text = extract_text_from_pdf(pdf_file)
-#print(extracted_text)
+print(extracted_text)
 
 #Doc object -> Tokens
 #doc = nlp(extracted_text)
