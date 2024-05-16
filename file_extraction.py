@@ -1,3 +1,4 @@
+import re
 import nltk
 import spacy
 from  nltk.corpus import stopwords
@@ -77,11 +78,11 @@ class FileExtractor:
 
         self.vectorizer = TfidfVectorizer()
         tf_idf_vector = self.vectorizer.fit_transform(self.cleaned_sentences)
-        print("tf_idf_vector", tf_idf_vector)
+        #print("tf_idf_vector", tf_idf_vector)
         feature_names = self.vectorizer.get_feature_names_out()
-        print("feature_names",feature_names)
+        #print("feature_names",feature_names)
         tf_idf_matrix = tf_idf_vector.todense().tolist()
-        print("tf_idf_matrix", tf_idf_matrix)
+        #print("tf_idf_matrix", tf_idf_matrix)
 
         num_sentences = len(self.uncleaned_sentences)
         num_features = len(feature_names)
@@ -118,23 +119,26 @@ class FileExtractor:
         Finds and returns the sentences containing the keyword
         '''
         words = word_tokenize(keyword)
-        print("KEYWORD:", keyword, "WORDS:", words)
-
+        #print("KEYWORD:", keyword, "WORDS:", words)
+        #print([x for x in self.sentence_for_max_word_score])
         for word in words:
-            print([x for x in self.sentence_for_max_word_score])
+            word = word.lower()
+            print("word:", word)
             if word not in self.sentence_for_max_word_score:
+                print("word not in max:", word)
+                sentence = ''
                 continue
             sentence = self.sentence_for_max_word_score[word]
+            print("sentence:", sentence)
 
-
-            all_present = True
-            for w in words:
-                if w not in sentence:
-                    all_present = False
+            # all_present = True
+            # for w in words:
+            #     if w not in sentence:
+            #         all_present = False
             
-            if all_present:
-                return sentence
-        return ""
+            # if all_present:
+            #     return sentence
+        return sentence
     
     def rank_keywords(self):
         '''
@@ -160,18 +164,20 @@ class FileExtractor:
         ctr = 1
 
         num_possibles = len(self.possible_triples)
-        while ctr <= self.num_questions and idx < num_possibles:
+        print("num_possibles", num_possibles)
+        while idx < num_possibles:
             possible_triple = self.possible_triples[idx]
 
-            if possible_triple[2] not in used_sentences:
+            if possible_triple[2] == "":
+                pass
+            elif possible_triple[2] not in used_sentences:
                 used_sentences.append(possible_triple[2])
 
                 self.questions_dict[ctr] = {
-                    "question": possible_triple[2].replace(
-                        possible_triple[1],
-                        '_' * len(possible_triple[1])),
+                    "question": re.sub(re.escape(possible_triple[1]), '_' * len(possible_triple[1]), possible_triple[2], flags=re.IGNORECASE),
                     "answer": possible_triple[1]
                 }
-
                 ctr += 1
+                print("ctr", ctr)
             idx += 1
+            #print("idx", idx)

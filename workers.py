@@ -14,18 +14,18 @@ def pdf2text(filepath: str, file_ext: str)->str:
         with open(filepath, 'r') as txt_file:
             content = txt_file.read()
             print("Text file extracted successfully!")
-    print(content)
+    #print(content)
     return content
 
 def txt2questions(doc: str, n=5, o=4)->dict:
     qGenerator = QuestionGenerator(n, o)
     q = qGenerator.generate_questions_dict(doc)
-    for i in range(len(q)):
-        temp = []
-        if "choices" in q[i+1]:
-            for j in range(len(q[i+1]["choices"])):
-                temp.append(q[i+1]["choices"][j])
-        q[i+1]["choices"] = temp
+    # for i in range(len(q)):
+    #     temp = []
+    #     if "choices" in q[i+1]:
+    #         for j in range(len(q[i+1]["choices"])):
+    #             temp.append(q[i+1]["choices"][j])
+    #     q[i+1]["choices"] = temp
     #print(q)
     return q
 
@@ -42,10 +42,12 @@ questions = txt2questions(text_content)
 
 
 # Print the generated questions
-for index, ques in questions.items():
-    print("QUESTION NUMBER:", index)
-    for i in ques:
-        print(f"{i}: {i.value()}")
-    # print("QUESTION:", ques['question'])
-    # print("ANSWER:", ques['answer'])
-    # print("CHOICES:", ques['choices'])
+for index, question_data in questions.items():
+    print("\nQUESTION #", index)
+    print("Question:", question_data['question'])
+    print("Answer:", question_data['answer'])
+
+    if 'choices' in question_data:
+        print("Choices:")
+        for choice_number, choice_text in question_data['choices'].items():
+            print(f"\t{choice_number}: {choice_text}")

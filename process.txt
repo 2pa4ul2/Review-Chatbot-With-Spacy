@@ -1,13 +1,13 @@
 WORKERS:
     1. pdf2txt -> txt2questions
-    2. calls generate_questions_dict from QuestionGenerator         == STRING FROM PDF FILE
+    2. calls generate_questions_dict from QuestionGenerator                     == STRING FROM PDF FILE
 
-    QUES GEN:
+    3. QUES GEN: (generate_questions_dict)
         1. clean text (removes special chars and double spaces)     
-        2. calls get_questions_dict from FileExtractor              == STRING FROM CLEAN TEXT 
+        2. calls get_questions_dict from FileExtractor                          == STRING FROM CLEAN TEXT 
 
-        FILE EXT:
-            1. get_possible_entities (spacy labeled entities)       == LIST OF STRINGS (stored in possible_keywords)
+        3. FILE EXT: (get_questions_dict)
+            1. get_possible_entities (spacy labeled entities)                   == LIST OF STRINGS (stored in possible_keywords)
             2. set_tdidf_scores
                 sent_tokenize (list of sentences stored in self.uncleaned_sentences)
                 self.get_cleaned_sentences (remove stopwords each sentence stored in self.cleaned_sentences)
@@ -23,9 +23,13 @@ WORKERS:
                    - possible_triples = list, (a) consist of get_keyword_score, (b) the keywords itself, 
                                               (c) then the sentence (iff all words are in sentence_for_max_word_score)
 
-                sort the words based on scores 
+                sort the words based on scores                                                        == LIST OF [score, word, sentence]
 
             4. form_questions
                 from possible_triples assign the question and answer to the questions_dictionary 
-                   - replacing the answer with blank in the question sentence
+                   - replacing the answer with blank in the question sentence                         == LIST OF QUESTIONS-ANSWERS
+
+        4. calls IncorrectAnswerGenerator -> get_all_options_dict                                     == LIST OF QUESTIONS-ANSWERS-CHOICES
+
+    4. PRINT ALL
 
