@@ -48,6 +48,8 @@ class ChatBot:
 
         self.app.add_error_handler(self.error_handler)
 
+        self.quests = dict()
+
 
     async def error_handler(self, update: Update, context: CallbackContext):
         """Log the error and send a message to the user or developer."""
@@ -150,8 +152,8 @@ class ChatBot:
         await docs.download_to_drive(custom_path=filename)
         await context.bot.answer_callback_query(update.callback_query.id, text="Downloading....")
 
-        # self.question_data = SAMPLE_QS
-        # print("self.question_data: ", self.question_data)
+        pdf = PDFtoQuestions(filename)
+        self.quests = pdf.extract_questions(5)
 
         buttons = [[InlineKeyboardButton(text="Start Quest!", callback_data="generate")],
                    [InlineKeyboardButton(text="Cancel Quest", callback_data="idk")]]
@@ -164,26 +166,11 @@ class ChatBot:
     async def generate_questions(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:         
         print("update.callback_query.data:", update.callback_query.data)
         if update.callback_query.data == "generate":
-
-            # pdf = PDFtoQuestions(filename)
-            # quests = pdf.extract_questions()
-
-            # for index, question_data in quests.items():
-            #     keyboard = []
-            #     reply_markup = None
-            #     qa_text = f"QUESTION #{index}\n{question_data['question']}\nAnswer: {question_data['answer']}\n"
-                
-            #     if 'choices' in question_data:
-            #         for choice_number, choice_text in question_data['choices'].items():
-            #             keyboard.append([InlineKeyboardButton(text=choice_text, callback_data=choice_number)])
-            #         reply_markup = InlineKeyboardMarkup(keyboard)
-
-            #     await context.bot.send_message(chat_id=update.effective_chat.id, text=QUESTION_TEXT.format(qa_text), parse_mode=constants.ParseMode.HTML, reply_markup=reply_markup)
             
-            if context.user_data['curr_index'] <= len(SAMPLE_QS):
+            if context.user_data['curr_index'] <= len(self.quests):
                 i = context.user_data['curr_index']
                 buttons = []
-                question_data = SAMPLE_QS[i]
+                question_data = self.quests[i]
 
                 print("question_data: ", question_data['question'])
                 print("ans: ", question_data['answer'])
