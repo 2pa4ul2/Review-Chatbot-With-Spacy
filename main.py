@@ -1,7 +1,7 @@
 #6918204649:AAGP-uIfNoziXXN-ueYXHD7kMJ3NJ566BUk - api key
 
 from typing import Final
-from chatbot.chatbot import ChatBot
+from chatbot.chatbot_reconstruct import ChatBot
 
 TOKEN: Final = '6918204649:AAGP-uIfNoziXXN-ueYXHD7kMJ3NJ566BUk'
 BOT_USERNAME: Final = '@docquest_bot'

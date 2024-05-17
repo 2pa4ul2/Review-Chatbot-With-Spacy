@@ -24,8 +24,8 @@ class PDFtoQuestions:
         #print(content)
         return content
 
-    def txt2questions(self, doc: str, n=5, o=4) -> dict:
-        qGenerator = QuestionGenerator(n, o)
+    def txt2questions(self, doc: str, num_questions: int, o=4) -> dict:
+        qGenerator = QuestionGenerator(num_questions, o)
         q = qGenerator.generate_questions_dict(doc)
         # for i in range(len(q)):
         #     temp = []
@@ -33,25 +33,32 @@ class PDFtoQuestions:
         #         for j in range(len(q[i+1]["choices"])):
         #             temp.append(q[i+1]["choices"][j])
         #     q[i+1]["choices"] = temp
-        #print(q)
+        print(q)
         return q
 
-    def extract_questions(self) -> dict:
+    def extract_questions(self, num_questions) -> dict:
         
         # Call the pdf2text function
         text_content = self.pdf2text(self.file_path, self.file_extension)
         # Call the txt2questions function
-        questions = self.txt2questions(text_content)
+        questions = self.txt2questions(text_content, num_questions)
         
-        # # Print the generated questions
-        # for index, question_data in questions.items():
-        #     print("\nQUESTION #", index)
-        #     print("Question:", question_data['question'])
-        #     print("Answer:", question_data['answer'])
-
-        #     if 'choices' in question_data:
-        #         print("Choices:")
-        #         for choice_number, choice_text in question_data['choices'].items():
-        #             print(f"\t{choice_number}: {choice_text}")
         print("DONE EXTRACTING QUESTIONS")
         return questions
+
+
+
+if __name__ == '__main__':
+    pdf = PDFtoQuestions("pdfs/modelling.pdf")
+    questions = pdf.extract_questions(10)
+
+    # Print the generated questions
+    for index, question_data in questions.items():
+        print("\nQUESTION #", index)
+        print("Question:", question_data['question'])
+        print("Answer:", question_data['answer'])
+
+        if 'choices' in question_data:
+            print("Choices:")
+            for choice_number, choice_text in question_data['choices'].items():
+                print(f"\t{choice_number}: {choice_text}")

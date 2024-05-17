@@ -3,23 +3,6 @@ from incorrect_answer_generation import IncorrectAnswerGenerator
 import re
 from nltk.tokenize import sent_tokenize
 
-# from PyPDF2 import PdfReader
-
-# def pdf2text(filepath: str, file_ext: str)->str:
-#     content = ""
-#     if file_ext == 'pdf':
-#         with open(filepath, 'rb') as pdf_file:
-#             pdf_reader = PdfReader(pdf_file)
-#             for page in range(len(pdf_reader.pages)):
-#                 content += pdf_reader.pages[page].extract_text()
-#             print("PDF file extracted successfully!")
-
-#     elif file_ext == 'txt':
-#         with open(filepath, 'r') as txt_file:
-#             content = txt_file.read()
-#             print("Text file extracted successfully!")
-#     print(content)
-#     return content
 
 class QuestionGenerator:
     def __init__(self, num_questions, num_options):
@@ -60,17 +43,21 @@ class QuestionGenerator:
         file = self.clean_text(file)
         self.questions_dict = self.file_extractor.get_questions_dict(file)
         self.incorrect_answer_generator = IncorrectAnswerGenerator(self.clean_words(file))
-        for i in range(1, self.num_questions + 1):
+        print("num_questions", self.num_questions)
+        print("len of questions generated:", len(self.questions_dict))
+
+        for i in range(len(self.questions_dict)):
             if i not in self.questions_dict:
-                #print('ques_dict:', self.questions_dict)
                 continue
             if 'answer' in self.questions_dict[i]:
                 self.questions_dict[i]['choices'] = self.incorrect_answer_generator.get_all_options_dict(
                     self.questions_dict[i]['answer'], 
                     self.num_options
                 )
-          
-        return self.questions_dict
+
+        min_num_ques = min(self.num_questions, len(self.questions_dict))
+
+        return {i: self.questions_dict[i] for i in range(1, min_num_ques + 1)}
         
 
 # if __name__ == '__main__':

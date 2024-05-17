@@ -4,7 +4,7 @@ import os
 import spacy
 import telegram
 from telegram import Update, BotCommand, InlineKeyboardButton, InlineKeyboardMarkup, constants
-from telegram.ext import Application, CommandHandler, MessageHandler, CallbackQueryHandler, filters, ContextTypes
+from telegram.ext import Application, CommandHandler, MessageHandler, CallbackQueryHandler, CallbackContext, filters, ContextTypes
 from spacy.lang.en.stop_words import STOP_WORDS
 from string import punctuation
 from heapq import nlargest
@@ -26,6 +26,7 @@ class ChatBot:
 
         self.app.add_handler(MessageHandler(filters.TEXT, self.handle_message))
         self.app.add_handler(MessageHandler(filters.Document.PDF, callback=self.handle_file))
+        self.app.add_handler(MessageHandler(filters=~ filters.Document.MimeType('application/pdf'), callback=self.handle_other_file))
         self.app.add_handler(CallbackQueryHandler(self.generate_questions))
 
         #error
@@ -35,8 +36,8 @@ class ChatBot:
     #Commands
     async def start_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         await context.bot.send_chat_action(update.effective_chat.id, action=constants.ChatAction.TYPING)
-        await update.message.reply_text('Welcome to DocQuest! Your personal reviewer assistant. Send me a document and I will help you with it.')
-        await context.bot.set_my_commands([BotCommand("start", "Restart the bot"), BotCommand("help", "Help Description")])
+        await update.message.reply_text(START_TEXT)
+        await context.bot.set_my_commands([BotCommand("start", "Restart the bot"), BotCommand("help", "Help description")])
 
 
     async def help_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -54,18 +55,31 @@ class ChatBot:
         if 'hello' in text_input:
             return 'Hello! How can I help you today?'
         #add nlp so that it can understand the text and give a response
+        elif 'pdf' in text_input:
+            return INSTRUCTION_TEXT
         elif text_input:
             text_to_summarize = text_input
 
             summary = self.text_summarization(text_to_summarize, 0.3)
             return f'Summarization of the text:\n{summary}'
+    
+        return "I'm not sure how to respond to that."
         
-
     async def handle_message(self, update: Update, context: ContextTypes.DEFAULT_TYPE): 
         text: str = update.message.text
         response: str = self.handle_response(text)
         print("Bot:", response)
         await update.message.reply_text(response)
+
+    
+
+    async def handle_other_file(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        try:
+            filename = update.message.document.file_name.split(".")
+            extension = filename[len(filename)-1]
+            await update.message.reply_text(text=WRONG_FILE.format(extension), parse_mode=constants.ParseMode.HTML)
+        except AttributeError as e:
+            await update.message.reply_text("Sorry Bot can't Read this file\n\nTry Sending the file with ```.pdf``` Extension",parse_mode=constants.ParseMode.MARKDOWN_V2)
 
     async def handle_file(self, update: Update, context: ContextTypes.DEFAULT_TYPE): 
         keyboard = [[InlineKeyboardButton(text="Generate Questions 📋", callback_data="generate")], [
@@ -73,42 +87,71 @@ class ChatBot:
         await update.message.reply_document(document=update.message.document, caption="Click On 👇 to Generate Questions", reply_markup=InlineKeyboardMarkup(keyboard))
 
     async def generate_questions(self, update: Update, context: ContextTypes.DEFAULT_TYPE): 
-        filename = r"chatbot\uploads\file"+str(update.effective_chat.id)+".pdf"
-        file_id = update.callback_query.message.document.file_id
-        docs = await context.bot.get_file(file_id=file_id)
-        await docs.download_to_drive(custom_path=filename)
-        await context.bot.answer_callback_query(update.callback_query.id, text="Downloading....")
-        
-        if update.callback_query.data == "generate":
-            pdf = PDFtoQuestions(filename)
-            quests = pdf.extract_questions()
-
-            for index, question_data in quests.items():
-                keyboard = []
-                reply_markup = None
-                qa_text = f"QUESTION #{index}\n{question_data['question']}\nAnswer: {question_data['answer']}\n"
-                
-                if 'choices' in question_data:
-                    for choice_number, choice_text in question_data['choices'].items():
-                        keyboard.append([InlineKeyboardButton(text=choice_text, callback_data=choice_number)])
-                    reply_markup = InlineKeyboardMarkup(keyboard)
-
-                await context.bot.send_message(chat_id=update.effective_chat.id, text=QUESTION_TEXT.format(qa_text), parse_mode=constants.ParseMode.HTML, reply_markup=reply_markup)
-
+        try: 
+            filename = r"chatbot\uploads\file"+str(update.effective_chat.id)+".pdf"
+            file_id = update.callback_query.message.document.file_id
+            docs = await context.bot.get_file(file_id=file_id)
+            # Ensure file_id is not None
+            if not file_id:
+                await context.bot.send_message(chat_id=update.effective_chat.id, text="Failed to retrieve file ID.")
+                return
             
-        elif update.callback_query.data == "idk":
-            await context.bot.send_message(update.effective_chat.id, text="IDK WHY")
-        else:
-            await context.bot.send_message(update.effective_chat.id, text="NONENONENONE")
-            # try:
-            #     await context.bot.send_chat_action(action=constants.ChatAction.UPLOAD_DOCUMENT, chat_id=update.effective_chat.id)
+            docs = await context.bot.get_file(file_id=file_id)
+            
+            # Check if file retrieval was successful
+            if not docs:
+                await context.bot.send_message(chat_id=update.effective_chat.id, text="Failed to download the file.")
+                return
 
-            # except telegram.error.BadRequest as bd:
-            #     if bd.message=="File must be non-empty":
-            #         await update.callback_query.delete_message()
-            #         await update.callback_query.message.reply_text("SORRY CAN'T READ THE FILE")
+            await docs.download_to_drive(custom_path=filename)
+            await context.bot.answer_callback_query(update.callback_query.id, text="Processing the file...")
+            
+            if update.callback_query.data == "generate":
+                pdf = PDFtoQuestions(filename)
+                quests = pdf.extract_questions(2)  
+
+                await self.show_questions(update, context, quests)
+
+                
+                
+            elif update.callback_query.data == "idk":
+                await context.bot.send_message(update.effective_chat.id, text="IDK WHY")
+            else:
+                await context.bot.send_message(update.effective_chat.id, text="NONENONENONE")
 
             # os.remove(filename)
+        except Exception as e:
+            # Log the error and inform the user
+            print(f"An error occurred: {e}")
+            await context.bot.send_message(chat_id=update.effective_chat.id, text="An error occurred while processing your request. Please try again later.")
+
+
+    async def show_questions(self, update: Update, context: ContextTypes.DEFAULT_TYPE, questions): 
+        for index, question_data in questions.items():
+            keyboard = []
+            reply_markup = None
+            qa_text = f"QUESTION #{index}\n{question_data['question']}\nAnswer: {question_data['answer']}\n"
+            
+            if 'choices' in question_data:
+                for choice_number, choice_text in question_data['choices'].items():
+                    keyboard.append([InlineKeyboardButton(text=choice_text, callback_data=choice_text)])
+                reply_markup = InlineKeyboardMarkup(keyboard)
+
+            await context.bot.send_message(chat_id=update.effective_chat.id, text=QUESTION_TEXT.format(qa_text), parse_mode=constants.ParseMode.HTML, reply_markup=reply_markup)
+            await self.check_answer(update, context, question_data['answer'])
+
+
+    async def check_answer(self, update: Update, context: CallbackContext, correct_answer: str):
+        chosen_choice = update.callback_query.data
+        print("chosen:", chosen_choice)
+        #await query.answer()
+        text = "correct" if chosen_choice == correct_answer else "wrong"
+        
+        response: str = self.handle_response(text)
+        print("Bot:", response)
+        await update.message.reply_text(response)
+
+
 
     #summarization of the text
     def text_summarization(self, text, percentage):

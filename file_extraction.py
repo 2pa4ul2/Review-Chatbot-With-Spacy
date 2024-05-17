@@ -164,7 +164,7 @@ class FileExtractor:
         ctr = 1
 
         num_possibles = len(self.possible_triples)
-        print("num_possibles", num_possibles)
+        print("num_possibles:", num_possibles)
         while idx < num_possibles:
             possible_triple = self.possible_triples[idx]
 
@@ -178,6 +178,6 @@ class FileExtractor:
                     "answer": possible_triple[1]
                 }
                 ctr += 1
-                print("ctr", ctr)
+                #print("ctr", ctr)
             idx += 1
             #print("idx", idx)
