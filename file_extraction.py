@@ -1,3 +1,4 @@
+import re
 import nltk
 import spacy
 from  nltk.corpus import stopwords
@@ -22,6 +23,7 @@ class FileExtractor:
 
         '''
         self.possible_keywords = self.get_possible_entities(file)
+        print("possible_keywords:", self.possible_keywords)
         self.set_tdidf_scores(file)
         self.rank_keywords()
         self.form_questions()
@@ -51,11 +53,13 @@ class FileExtractor:
         Need: file
         Return: list of possible entities
         '''
-        entities = self.ner_tagger(file)
+        entities = self.ner_tagger(file) #spacy 
         entity_list = []
-
+        
         for ent in entities.ents:
             entity_list.append(ent.text)
+
+        print("Entities:", list(set(entity_list)))
         return list(set(entity_list))
     
     def set_tdidf_scores(self, file):
@@ -74,8 +78,11 @@ class FileExtractor:
 
         self.vectorizer = TfidfVectorizer()
         tf_idf_vector = self.vectorizer.fit_transform(self.cleaned_sentences)
+        #print("tf_idf_vector", tf_idf_vector)
         feature_names = self.vectorizer.get_feature_names_out()
+        #print("feature_names",feature_names)
         tf_idf_matrix = tf_idf_vector.todense().tolist()
+        #print("tf_idf_matrix", tf_idf_matrix)
 
         num_sentences = len(self.uncleaned_sentences)
         num_features = len(feature_names)
@@ -112,26 +119,33 @@ class FileExtractor:
         Finds and returns the sentences containing the keyword
         '''
         words = word_tokenize(keyword)
+        #print("KEYWORD:", keyword, "WORDS:", words)
+        #print([x for x in self.sentence_for_max_word_score])
         for word in words:
+            word = word.lower()
+            print("word:", word)
             if word not in self.sentence_for_max_word_score:
+                print("word not in max:", word)
+                sentence = ''
                 continue
             sentence = self.sentence_for_max_word_score[word]
+            print("sentence:", sentence)
 
-            all_present = True
-            for w in words:
-                if w not in sentence:
-                    all_present = False
+            # all_present = True
+            # for w in words:
+            #     if w not in sentence:
+            #         all_present = False
             
-            if all_present:
-                return sentence
-        return ""
+            # if all_present:
+            #     return sentence
+        return sentence
     
     def rank_keywords(self):
         '''
         This functions ranks keywords according to their score
         '''
         self.possible_triples = []
-
+        
         for possible_keyword in self.possible_keywords:
             self.possible_triples.append([
                 self.get_keyword_score(possible_keyword),
@@ -150,18 +164,20 @@ class FileExtractor:
         ctr = 1
 
         num_possibles = len(self.possible_triples)
-        while ctr <= self.num_questions and idx < num_possibles:
+        print("num_possibles:", num_possibles)
+        while idx < num_possibles:
             possible_triple = self.possible_triples[idx]
 
-            if possible_triple[2] not in used_sentences:
+            if possible_triple[2] == "":
+                pass
+            elif possible_triple[2] not in used_sentences:
                 used_sentences.append(possible_triple[2])
 
                 self.questions_dict[ctr] = {
-                    "question": possible_triple[2].replace(
-                        possible_triple[1],
-                        '_' * len(possible_triple[1])),
+                    "question": re.sub(re.escape(possible_triple[1]), '_' * len(possible_triple[1]), possible_triple[2], flags=re.IGNORECASE),
                     "answer": possible_triple[1]
                 }
-
                 ctr += 1
+                #print("ctr", ctr)
             idx += 1
+            #print("idx", idx)

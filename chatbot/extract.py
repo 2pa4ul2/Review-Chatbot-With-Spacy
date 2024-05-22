@@ -5,11 +5,11 @@ import re
 from pdfminer.high_level import extract_pages, extract_text
 
 
-for page_layout in extract_pages("modelling.pdf"):
+for page_layout in extract_pages("./pdfs/modelling.pdf"):
     for element in page_layout:
         print(element)
 
-text = extract_text("modelling.pdf")
+text = extract_text("./pdfs/modelling.pdf")
 print(text)
 
 
