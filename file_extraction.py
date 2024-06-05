@@ -1,9 +1,14 @@
 import re
 import nltk
 import spacy
-from  nltk.corpus import stopwords
+from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize, sent_tokenize
 from sklearn.feature_extraction.text import TfidfVectorizer
+import sys
+import io
+
+# Redirect standard output to handle UTF-8 encoding
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 class FileExtractor:
     def __init__(self, num_questions):
@@ -15,12 +20,10 @@ class FileExtractor:
 
     def get_questions_dict(self, file):
         '''
-
         This functions extracts text from a file and returns a dictionary of questions.
         Need: file
         Return: dictionary of questions
         Format of dictionary: question_number{question: [answer1, answer2, answer3, ...]}
-
         '''
         self.possible_keywords = self.get_possible_entities(file)
         print("possible_keywords:", self.possible_keywords)
@@ -78,11 +81,8 @@ class FileExtractor:
 
         self.vectorizer = TfidfVectorizer()
         tf_idf_vector = self.vectorizer.fit_transform(self.cleaned_sentences)
-        #print("tf_idf_vector", tf_idf_vector)
         feature_names = self.vectorizer.get_feature_names_out()
-        #print("feature_names",feature_names)
         tf_idf_matrix = tf_idf_vector.todense().tolist()
-        #print("tf_idf_matrix", tf_idf_matrix)
 
         num_sentences = len(self.uncleaned_sentences)
         num_features = len(feature_names)
@@ -100,7 +100,7 @@ class FileExtractor:
                     cur_max = tf_idf_matrix[j][i]
                     self.sentence_for_max_word_score[word] = self.uncleaned_sentences[j]
             # Compute average score for each word
-            self.word_score[word] = tot/num_sentences
+            self.word_score[word] = tot / num_sentences
     
     def get_keyword_score(self, keyword):
         '''
@@ -111,7 +111,7 @@ class FileExtractor:
         score = 0.0
         for word in word_tokenize(keyword):
             if word in self.word_score:
-                score+=self.word_score[word]
+                score += self.word_score[word]
         return score
     
     def get_corresponding_sentence_for_keyword(self, keyword):
@@ -119,8 +119,6 @@ class FileExtractor:
         Finds and returns the sentences containing the keyword
         '''
         words = word_tokenize(keyword)
-        #print("KEYWORD:", keyword, "WORDS:", words)
-        #print([x for x in self.sentence_for_max_word_score])
         for word in words:
             word = word.lower()
             print("word:", word)
@@ -130,14 +128,6 @@ class FileExtractor:
                 continue
             sentence = self.sentence_for_max_word_score[word]
             print("sentence:", sentence)
-
-            # all_present = True
-            # for w in words:
-            #     if w not in sentence:
-            #         all_present = False
-            
-            # if all_present:
-            #     return sentence
         return sentence
     
     def rank_keywords(self):
@@ -178,6 +168,4 @@ class FileExtractor:
                     "answer": possible_triple[1]
                 }
                 ctr += 1
-                #print("ctr", ctr)
             idx += 1
-            #print("idx", idx)

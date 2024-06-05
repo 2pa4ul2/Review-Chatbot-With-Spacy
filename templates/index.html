@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Question Generator</title>
+</head>
+<body>
+    <h1>Generate Questions from PDF</h1>
+    <form method="POST">
+        <label for="file_path">PDF File Path:</label>
+        <input type="text" id="file_path" name="file_path" value="pdfs/modelling.pdf"><br><br>
+        <label for="num_questions">Number of Questions:</label>
+        <input type="number" id="num_questions" name="num_questions" value="10"><br><br>
+        <button type="submit">Generate Questions</button>
+    </form>
+
+    {% if questions %}
+        <h2>Generated Questions</h2>
+        {% for index, question_data in questions.items() %}
+            <div>
+                <h3>Question #{{ index }}</h3>
+                <p><strong>Question:</strong> {{ question_data['question'] }}</p>
+                <p><strong>Answer:</strong> {{ question_data['answer'] }}</p>
+                {% if 'choices' in question_data %}
+                    <p><strong>Choices:</strong></p>
+                    <ul>
+                        {% for choice_number, choice_text in question_data['choices'].items() %}
+                            <li>{{ choice_number }}: {{ choice_text }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% endif %}
+</body>
+</html>
