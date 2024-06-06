@@ -3,7 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <title>Question Generator</title>
+    <style>
+        body {
+            font-family: "Montserrat", sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #0d0922;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        label {
+            margin-bottom: 10px;
+            color: white;
+        }
+
+        input {
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 10px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        h2 {
+            text-align: center;
+            color: white;
+        }
+
+        div {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+
+        h3 {
+            margin: 0;
+        }
+
+        p {
+            margin: 0;
+        }
+
+        ul {
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            list-style-type: none;
+            display: flex;
+            justify-content: space-evenly;
+        }
+
+        li {
+            margin-bottom: 5px;
+        }
+        .quiz-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            border: none;
+        }
+
+        .quizbox{
+            width: 40%;
+            padding: 10px;
+            background-color:#fff;
+            border-radius: 20px;
+        }
+        button {
+            padding: 15px 25px;
+            font-size: 1rem;
+            border-radius: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
     <h1>Generate Questions from PDF</h1>
@@ -18,19 +109,23 @@
     {% if questions %}
         <h2>Generated Questions</h2>
         {% for index, question_data in questions.items() %}
-            <div>
+        <div class="quiz-container">
+            <div class="quizbox">
                 <h3>Question #{{ index }}</h3>
-                <p><strong>Question:</strong> {{ question_data['question'] }}</p>
-                <p><strong>Answer:</strong> {{ question_data['answer'] }}</p>
+                <h4>Question:</h4><p>{{ question_data['question'] }}</p>
+                <h4>Answer:</h4><p>{{ question_data['answer'] }}</p>
                 {% if 'choices' in question_data %}
                     <p><strong>Choices:</strong></p>
                     <ul>
                         {% for choice_number, choice_text in question_data['choices'].items() %}
-                            <li>{{ choice_number }}: {{ choice_text }}</li>
+                                <li>
+                                    <button>{{ choice_number }}: {{ choice_text }}</button>
+                            </li>
                         {% endfor %}
                     </ul>
                 {% endif %}
             </div>
+        </div>
         {% endfor %}
     {% endif %}
 </body>
